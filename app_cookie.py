@@ -277,9 +277,74 @@ def update_miles():
         week_num=get_team_week_num(team_id)
         user_name=user['first_name']+" "+user['last_name']
         write_weekly_miles(player_id,miles,week_num)
+        get_team_miles(team_id,week_num)
         flash("Successfully update the miles for player "+user_name+ "as "+miles+" at week #"+str(week_num),"update_miles")
     else:
         flash("Fail to find a team for player "+user_name,"update_miles_error")    
+    return team_webpage()
+@app.route("/React_with_cards/", methods=['GET', 'POST'])
+def React_with_cards():
+    team_id=request.cookies.get('team_id')
+    week_num=get_team_week_num(team_id)
+    team_info=read_team_progress_at(team_id,week_num)
+    card_to_use=request.form['cardsUsed']
+    if card_to_use and card_to_use in team_info["cards_at_hand"]:
+        #delete this card from cards at hand
+        team_info["cards_at_hand"].remove(card_to_use)
+        modified_value=""
+        for val in team_info["cards_at_hand"]:
+            if val:
+                modified_value+=val+";"
+        modify_team_progress(team_id,week_num,"cards_at_hand",modified_value)
+        
+        #add this card to card used
+        team_info["cards_used"]=team_info["cards_used"]+[card_to_use]
+        modified_value=""
+        for val in team_info["cards_used"]:
+            if val:
+                modified_value+=val+";"
+        modify_team_progress(team_id,week_num,"cards_used",modified_value)
+        flash("Successfully used the "+card_to_use+" card","defensive_card")
+    else:
+        flash("Fail to use the "+card_to_use+" card. Your team does not have it!","defensive_card_error")    
+    return team_webpage()
+
+@app.route("/attack_with_cards/", methods=['GET', 'POST'])
+def attack_with_cards():
+    team_id=request.cookies.get('team_id')
+    week_num=get_team_week_num(team_id)
+    team_info=read_team_progress_at(team_id,week_num)
+    card_to_use=request.form['cardsUsed']
+    target_team=request.form['target_team']
+    if card_to_use and card_to_use in team_info["cards_at_hand"] and target_team in get_all_team_ids():
+        #delete this card from your hand
+        team_info["cards_at_hand"].remove(card_to_use)
+        modified_value=""
+        for val in team_info["cards_at_hand"]:
+            if val:
+                modified_value+=val+";"
+        modify_team_progress(team_id,week_num,"cards_at_hand",modified_value)
+        #add this card to cards used
+        team_info["cards_used"]=team_info["cards_used"]+[card_to_use]
+        modified_value=""
+        for val in team_info["cards_used"]:
+            if val:
+                modified_value+=val+";"
+        modify_team_progress(team_id,week_num,"cards_used",modified_value)
+        #give this card to others
+        target_week_num=get_team_week_num(target_team)
+        target_team_info=read_team_progress_at(target_team,target_week_num)
+        target_team_info["cards_received"]=target_team_info["cards_received"]+[card_to_use]
+        modified_value=""
+        for val in target_team_info["cards_received"]:
+            if val:
+                modified_value+=val+";"
+        modify_team_progress(target_team,target_week_num,"cards_received",modified_value)
+        flash("Successfully used the "+card_to_use+" card to team "+target_team,"offensive_card")
+        
+        
+    else:
+        flash("Fail to use the "+card_to_use+" card to team "+target_team+". Check if this team exists or if you have this card.","offensive_card_error")    
     return team_webpage()
 
 @app.route("/assign_challenge_to_commitment/", methods=['GET', 'POST'])

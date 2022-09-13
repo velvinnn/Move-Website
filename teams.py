@@ -139,7 +139,6 @@ def read_team_progress_at(team_id,week_num=2):
     team_progress={}
     city_dic=read_cities_dic()
     try:
-        
         if week_num>0:
             team_progress=pd.read_csv(team_dir+team_id+".csv",dtype=str,keep_default_na=False)
             team_progress=team_progress[team_progress['the_ith_week'] == str(week_num)].to_dict('list')
@@ -147,6 +146,11 @@ def read_team_progress_at(team_id,week_num=2):
                 team_progress[key]=str(team_progress[key][0])
                 if ";" in team_progress[key]:
                     team_progress[key]=team_progress[key].split(';')
+                elif 'card' in key:
+                    if team_progress[key]:
+                        team_progress[key]=[]
+                    else:
+                        team_progress[key]=[team_progress[key]]
             #print(team_progress)
             if team_progress["driver id"]:
                 driver=get_user_info(team_progress["driver id"])

@@ -1,4 +1,4 @@
-the_ith_week,driver id,start location id,target location id,goal_miles,actual_miles,cards received,cards in hand
-1,3,1,2,12,7,1,1;2;3
-2,1,2,3,123,162,2,1;2
-3,2,3
+the_ith_week,driver id,start location id,target location id,goal_miles,player_miles,actual_miles,cards_received,cards_at_hand,cards_used
+1,3,1,2,12,,7,1,1;2;3,
+2,1,2,3,123,,162,2,1;2,
+3,2,3,,15,50,40,Flat tire;Bad direction,Bad direction;Bad direction;Map;,Map;

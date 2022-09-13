@@ -73,3 +73,9 @@ table.dataTable thead .sorting_desc_disabled:after,
 table.dataTable thead .sorting_desc_disabled:before {
 bottom: .5em;
 }
+#cardsUsed{
+  width:150px;   
+ }
+#cardsUsed option{
+  width:150px;   
+ }

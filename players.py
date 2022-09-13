@@ -204,7 +204,7 @@ def get_team_miles(team_id,week_num):
         total_miles+=get_player_accumulative_miles(id,week_num)[1]
     total_miles=total_miles/len(player_ids)
     total_miles=str(int(total_miles))
-    modify_team_progress(team_id,week_num,"actual_miles",total_miles)
+    modify_team_progress(team_id,week_num,"player_miles",total_miles)
     return 
 #read_player_fitbit_data("1","2",end_date=None)
 #_,___=get_player_accumulative_miles("1",2)

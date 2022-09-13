@@ -22,7 +22,7 @@
     <h1>Team: {{team_info.team_name}}</h1>
     <p>Welcome to the Week #{{team_info.the_ith_week}}! </p>
     <p>You are currently at {{team_info.location}}. Your car driver is {{team_info.driver}}. Your destination is {{team_info.destination}}. </p>
-    <p>Your team currently has action cards: {{team_info.cards_in_hand}}<p>
+    <p>Your team currently has action cards: {{team_info.cards_at_hand}}<p>
     <img class="map_image" src="{{ url_for('static', filename='teams_')}}{{ team_info.team_id }}{{map_id}}{{ '.png' }}" style="width:100%" alt="Image" id='TeamMap'>
     </div>
 </div>
@@ -71,7 +71,7 @@
 
 
 <!-- completing this week-->
-<h1>Step 1: Summarizing this week (except at week 1)</h1>
+<h1>Step 1: Summarizing this week (except at the first meeting)</h1>
 <div class="container text-center">
 <!-- Status of each team member-->
 <div class="container text-center">
@@ -112,11 +112,11 @@
 {% if login == 'True' %}
 
 <!-- Weekly Miles calculater -->
-<div class="row text-center">
+<div class="container text-center">
   <h1> Weekly Miles calculater </h1>
   <p> Please enter the information that you would like to query:</p>
   <form action="/retrieve_participant_data/" method="post">
-  <select name="dataType" id="dataType">
+  <select name="dataType" id="dataType",style="width:10%">
     <option selected="selected"></option>
     <option value="steps">steps from Fitbit</option>
     <option value="calories">calories from Fitbit</option>
@@ -166,60 +166,80 @@
 {% endwith %}    
   
 
-<div class="row text-center">
+<div class="container text-center">
 <!-- Weekly Points calculator-->
-<h1>Please calculate the points this week (week #{{team_info.the_ith_week}})</h1>
-<p>Your team currenly has traveled {{team_info.actual_miles}} miles, as an average among players.</p>
+<h1>Please calculate the points this week</h1>
+<p>Your team currenly has traveled {{team_info.player_miles}} miles, as the average among players.</p>
 <p>To reach your destination, you need to travel {{team_info.goal_miles}} miles.</p>
 
-<form action="/calculate_raw_points/" method="post"> 
-  <table>
-    <tr>
-      <th>Role</th>
-      <th>Player ID</th>
-      <th>Basic miles</th>
-      <th>Bonus miles</th>
-    </tr>
-    <tr>
-      <td>Driver</td>
-      <td> <input type="number" /></td>
-      <td><input type="number"  /></td>
-      <td> <input type="number" /></td>
-    </tr>
-    <tr>
-      <td>Player 1</td>
-      <td> <input type="number" /></td>
-      <td><input type="number"  /></td>
-      <td> <input type="number" /></td>
-    </tr>
-    <tr>
-      <td>Player 2</td>
-      <td> <input type="number" /></td>
-      <td><input type="number"  /></td>
-      <td> <input type="number" /></td>
-    </tr>
-    <tr>
-    <td>Player 3</td>
-      <td> <input type="number" /></td>
-      <td><input type="number"  /></td>
-      <td> <input type="number" /></td>
-    </tr>
-    <td>Player 4</td>
-    <td> <input type="number" /></td>
-    <td><input type="number"  /></td>
-    <td> <input type="number" /></td>
-  </tr>
-  </table>
-  <button  id="/calculate_raw_points/">calculate raw points</button>
+<form action="/React_with_cards/" method="post"> 
+  <label>This week, you received offensive action card(s): 
+    {% for card in team_info.cards_received %}
+    {{card}};
+    {% endfor%} </label><br>
+  <label>Currently, you have action card(s):     
+    {% for card in team_info.cards_at_hand %}
+    {{card}};
+    {% endfor%} </label><br>
+  <label>Do you want to react with defensive action card(s)? You can use multiple cards one by one</label> <br>
+  <select name="cardsUsed" id="cardsUsed",style="width:150px;">
+    <option selected="selected",style="width:150px"></option>
+    <option value="Flat tire",style="width:150px">Flat tire</option>
+    <option value="Bad direction",style="width:150px">Bad direction</option>
+    <option value="Spare tire",style="width:150px">Spare tire</option>
+    <option value="Map",style="width:150px">Map</option>
+    <option value="Turbo charger",style="width:150px">Turbo charger</option>
+    </select>
+  <button  id="/React_with_cards/">Use defensive action cards</button>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class=flashes>
+      {% for category,message in messages %}
+        {% if category == "defensive_card" %}
+        <p style="color:blue">{{message}}</p>
+        {% endif %}
+        {% if category == "defensive_card_error" %}
+          <p style="color:red">{{message}}</p>
+        {% endif %}
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
 </form>
-<label>Last week, you received offensive action card(s): Flat tire </label><br>
-<label>Last week, you respond with defensive action card(s): </label><br>
-<label>Points from offensive and/or defensive action cards: </label> <input type="number" /><br>
-<button  id="/calculate_total_points/">calculate total points</button>
-</div>
 
+<form action="/attack_with_cards/" method="post"> 
+  <label>You can attack another team with your offensive card at hand: 
+  <select name="cardsUsed" id="cardsUsed",style="width:150px;">
+    <option selected="selected",style="width:150px"></option>
+    <option value="Flat tire",style="width:150px">Flat tire</option>
+    <option value="Bad direction",style="width:150px">Bad direction</option>
+    </select><br>
+    Please enter the team id, which you want to attack:
+    <input type="number" name="target_team" value="True">  <br>
+  <button  id="/attack_with_cards/">Use offensive action card</button>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class=flashes>
+      {% for category,message in messages %}
+        {% if category == "offensive_card" %}
+        <p style="color:blue">{{message}}</p>
+        {% endif %}
+        {% if category == "offensive_card_error" %}
+          <p style="color:red">{{message}}</p>
+        {% endif %}
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+</form>
+<p>Currently, you have used action card(s):     
+  {% for card in team_info.cards_used %}
+  {{card}};
+  {% endfor%} </p><br>
+</div>
 </div>
 <div class="gap-30"></div>
+<h1>Step 2: Plan for next week</h1>
 <!-- Draw Cards  <img src="{{ image}}" style="width:90%" alt="Image" id="myimg2"> -->
 <div class="row text-center">
   {% for image in player_images %}
