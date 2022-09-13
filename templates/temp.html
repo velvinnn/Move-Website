@@ -1,0 +1,55 @@
+<!-- assign Commmit Pledge according to the challenge card-->
+{% if 1 == 1 %}
+<div class="text-center"><h2>Please deside the commitment pledge from challenge card #{{commitment.card_id}}</h2></div>
+<div style="position: relative;left: 30%">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for category,message in messages %}
+        {% if category == "pc_error" %}
+          <p style="color:red">{{message}}</p>
+        {% endif %}
+        {% if category == "pc_success" %}
+        <p style="color:blue">{{message}}</p>
+      {% endif %}
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+  <form action="/assign_commitment_pledge_next_week/" method="post"> 
+    <br>
+      <label>Target Week #: </label>
+      <input name="WeekNum" type="number" placeholder="_th Week" /><br>
+      <label>Player: </label>
+      <input name="PlayerID" type="number" placeholder="Player ID" /><br>
+      <label>Commitment: I will </label>
+      <select name="commitment" style="width: 500px;" id="commitment">
+        <option value="mile1">{{commitment.descriptions1}}</option>
+        <option value="mile2">{{commitment.descriptions2}}</option>
+        </select><br>
+      <label>Days on which commitment will be met: </label><br>
+      &emsp;
+      <input type="checkbox" id="cpt1" name="Sun" value="Sun"> Sun
+      <input type="checkbox" id="cpt2" name="Mon" value="Mon"> Mon
+      <input type="checkbox" id="cpt3" name="Tue" value="Tue"> Tue
+      <input type="checkbox" id="cpt4" name="Wed" value="Wed"> Wed
+      <input type="checkbox" id="cpt5" name="Th" value="Th"> Th
+      <input type="checkbox" id="cpt6" name="Fri" value="Fri"> Fri
+      <input type="checkbox" id="cpt7" name="Sat" value="Sat"> Sat
+      <br>
+      <label>Varification: {{commitment.verify}}</label><br>
+      <label>Miles: </label><br>
+      &emsp;{{commitment.miles1}} miles: {{commitment.descriptions1}}<br>
+      &emsp;{{commitment.miles2}} miles: {{commitment.descriptions2}}<br>
+      <label>Bonues miles </label><br>
+      &emsp;<input type="checkbox" name="Driver bonus" value="True"> Driver bonus<br>
+      &emsp;<input type="checkbox" name="Try something new bonus" value="True"> Try something new bonus <input name="Something new string" style="width: 400px;" type="text" placeholder="Please input the new things that you are going to try." /><br> 
+      &emsp;<input type="checkbox" name="Double-up bonus" value="True"> Double-up bonus <br>
+      &emsp;&emsp;Who is going to complete this commitment pledge with you? Please enter his/her player id.<br>
+      &emsp;&emsp;<input name="DoublePlayerID1" style="width: 50px;" type="number" placeholder="ID1" /><input name="DoublePlayerID2" type="number" style="width: 50px;" placeholder="ID2" /><br>
+      &emsp;<input type="checkbox" name="Reliable passenger bonus" value="True"> Reliable passenger bonus<br>
+    <br>
+    <button  id="assign_cp" style="text-align: center">submit</button>
+  </form>
+</div>
+{%endif%}

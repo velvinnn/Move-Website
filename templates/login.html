@@ -1,0 +1,31 @@
+{% extends 'main.html'%} 
+{%block login%}
+  <!-- Modal -->
+  <div class="modal" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Login to your account</h5>
+        </div>
+        <div class="modal-body">
+            <form action="{{ url_for('login') }}">  
+                <input type="text" placeholder="username" id="username" name="username">
+                <input type="password" placeholder="password" id="password" name="password">
+                <button class="btn btn-primary" id="Login">Login</button>
+              </form>
+        </div>
+        <div class="modal-footer">
+            <a href="{{ url_for('main') }}" style="color:#020202">I don't have an account. Navigate to the main page.</a></div>
+        </div>
+    </div>
+  </div>
+{%endblock login%}
+
+{%block script%}
+<script>
+    $(document).ready(function(){
+        console.log("login")
+        $("#exampleModal").modal("show")
+    })
+</script>  
+{%endblock script%}

@@ -1,0 +1,375 @@
+{% extends 'navigation.html'%} 
+{%block content%}
+<style>
+  table, th, td {
+    border:1px solid black;
+  }
+  </style>
+<!-- Map-->
+<div class="jumbotron">
+  <div class="container text-center">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for category,message in messages %}
+          {% if category == "synce_error" %}
+            <p style="color:red">{{message}}</p>
+          {% endif %}
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <h1>Team: {{team_info.team_name}}</h1>
+    <p>Welcome to the Week #{{team_info.the_ith_week}}! </p>
+    <p>You are currently at {{team_info.location}}. Your car driver is {{team_info.driver}}. Your destination is {{team_info.destination}}. </p>
+    <p>Your team currently has action cards: {{team_info.cards_in_hand}}<p>
+    <img class="map_image" src="{{ url_for('static', filename='teams_')}}{{ team_info.team_id }}{{map_id}}{{ '.png' }}" style="width:100%" alt="Image" id='TeamMap'>
+    </div>
+</div>
+
+<!--  find interested cities by a dropdown list  -->
+<div class="container text-center"> 
+  <h2>City Distance Calculator</h2>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for category,message in messages %}
+        {% if category == "city_distance_True" %}
+        <p style="color:blue">{{message}}</p>
+        {% endif %}
+        {% if category == "city_distance_False" %}
+        <p style="color:red">{{message}}</p>
+        {% endif %}
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+  <form action="/find_city_distance/" method="post"> 
+      <select id="DropDownCity1" name="DropDownCity1" placeholder="Pick your start location">
+        <option value="">Pick your start location</option>
+        {% for name,id in city_names %}
+        <option value={{id}}>#{{id}}','{{name}}</option>
+        {% endfor%}
+        </select>
+        <select id="DropDownCity2" name="DropDownCity2" placeholder="Pick your target location">
+          <option value="">Pick your target location</option>
+          {% for name,id in city_names %}
+          <option value={{id}}>#{{id}}','{{name}}</option>
+          {% endfor%}
+        </select>
+      <button  id="submit_distance" style="text-align: center">submit</button>
+  </form>
+</div>
+<script>
+  $(document).ready(function () {
+      $('select').selectize({
+          sortField: 'text'
+      });
+  });
+</script> 
+
+
+
+<!-- completing this week-->
+<h1>Step 1: Summarizing this week (except at week 1)</h1>
+<div class="container text-center">
+<!-- Status of each team member-->
+<div class="container text-center">
+  <h1> Player Leaderboard</h1>
+  <p>Please review each team member's progress and commitment card</p>
+  <table class="table table-striped table-bordered" id="PlayerTeamTable" cellspacing="0" width="100%">
+    <thead>
+      <tr>
+        <th class="th-sm">Player ID</th>
+        <th class="th-sm">Player Name</th>
+        <th class="th-sm">Current Miles</th>
+        <th class="th-sm">Accumulative Miles</th>
+        <th class="th-sm">Commitment card</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for player in player_leaderboard %}
+      <tr>
+        <td>{{player.user_id}}</td>
+        <td>{{player.name}}</td>
+        <td>{{player.current_miles}}</td>
+        <td>{{player.miles}}</td>
+        <td>
+          {% for pid in player.commitment_cards%}
+          <a href="{{ url_for('static', filename='commitment_cards/')}}{{pid}}{{ '.png' }}" style="text-align:center; background: url('button.png'); width: 100px; height: 50px;"> {{pid}}</a>
+          {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<script>
+  $('#PlayerTeamTable').DataTable();
+</script>
+</div>
+
+{% if login == 'True' %}
+
+<!-- Weekly Miles calculater -->
+<div class="row text-center">
+  <h1> Weekly Miles calculater </h1>
+  <p> Please enter the information that you would like to query:</p>
+  <form action="/retrieve_participant_data/" method="post">
+  <select name="dataType" id="dataType">
+    <option selected="selected"></option>
+    <option value="steps">steps from Fitbit</option>
+    <option value="calories">calories from Fitbit</option>
+    <option value="Minutes Active">Minutes Active from Fitbit</option>
+    <option value="weight">weight from Fitbit</option>
+    <option value="bmi">BMI from Fitbit</option>
+    </select><br>
+  player id<input type="number" name="id" value="True"> <br>
+  start date<input type="date" name="start_date" value="True">  <br>
+  end date<input type="date" name="end_date" value="True">  <br>
+  <button  id="retrieve_data" style="text-align: center">submit</button>
+  </form>
+  {% if parcitipant_data != 'None' %}
+    <img class="map_image" src="{{ url_for('static', filename='participant_data/')}}{{ parcitipant_data }}{{ '.png' }}" style="width:80%" alt="Image" id='pd'>
+  {% endif %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for category,message in messages %}
+        {% if category == "retrieval error!" %}
+        <p style="color:red">{{message}}</p>
+        {% endif %}
+        {% endfor %}
+        </ul>
+      {% endif %}
+  {% endwith %}
+    
+    <p> According to the commitment card and how the play was doing, please update the player miles</p>
+    <form action="/update_miles/" method="post">
+      player id<input type="number" name="id" value="True" id="id"> <br>
+      miles<input type="number" name="miles" value="True" id="miles">  <br>
+      <button  id="update_miles" style="text-align: center">update miles</button>
+    </form> 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class=flashes>
+      {% for category,message in messages %}
+        {% if category == "update_miles" %}
+        <p style="color:blue">{{message}}</p>
+        {% endif %}
+        {% if category == "update_miles_error" %}
+        <p style="color:red">{{message}}</p>
+        {% endif %}
+      {% endfor %}
+      </ul>
+    {% endif %}
+{% endwith %}    
+  
+
+<div class="row text-center">
+<!-- Weekly Points calculator-->
+<h1>Please calculate the points this week (week #{{team_info.the_ith_week}})</h1>
+<p>Your team currenly has traveled {{team_info.actual_miles}} miles, as an average among players.</p>
+<p>To reach your destination, you need to travel {{team_info.goal_miles}} miles.</p>
+
+<form action="/calculate_raw_points/" method="post"> 
+  <table>
+    <tr>
+      <th>Role</th>
+      <th>Player ID</th>
+      <th>Basic miles</th>
+      <th>Bonus miles</th>
+    </tr>
+    <tr>
+      <td>Driver</td>
+      <td> <input type="number" /></td>
+      <td><input type="number"  /></td>
+      <td> <input type="number" /></td>
+    </tr>
+    <tr>
+      <td>Player 1</td>
+      <td> <input type="number" /></td>
+      <td><input type="number"  /></td>
+      <td> <input type="number" /></td>
+    </tr>
+    <tr>
+      <td>Player 2</td>
+      <td> <input type="number" /></td>
+      <td><input type="number"  /></td>
+      <td> <input type="number" /></td>
+    </tr>
+    <tr>
+    <td>Player 3</td>
+      <td> <input type="number" /></td>
+      <td><input type="number"  /></td>
+      <td> <input type="number" /></td>
+    </tr>
+    <td>Player 4</td>
+    <td> <input type="number" /></td>
+    <td><input type="number"  /></td>
+    <td> <input type="number" /></td>
+  </tr>
+  </table>
+  <button  id="/calculate_raw_points/">calculate raw points</button>
+</form>
+<label>Last week, you received offensive action card(s): Flat tire </label><br>
+<label>Last week, you respond with defensive action card(s): </label><br>
+<label>Points from offensive and/or defensive action cards: </label> <input type="number" /><br>
+<button  id="/calculate_total_points/">calculate total points</button>
+</div>
+
+</div>
+<div class="gap-30"></div>
+<!-- Draw Cards  <img src="{{ image}}" style="width:90%" alt="Image" id="myimg2"> -->
+<div class="row text-center">
+  {% for image in player_images %}
+  <div class="column">
+    <img src="{{ url_for('static', filename=image) }}" style="width:90%" alt="Image" id="myimg2">
+    
+  </div>
+  {% endfor %}
+</div>
+<div class="text-center">
+
+  <form action="/Drawcards/" method="get"> 
+    <button id="DrawChallenges">Draw cards</button>
+  </form>
+</div>
+
+
+<div class="gap-30"></div>
+
+<!-- Play-->
+<div class="container text-center">
+  <div class="row">
+      <!-- dice-->
+      <div class="col-md-6 vcenter text-center  add_padding">
+        <div class="dice">
+          <ol class="die-list even-roll" data-roll="1" id="die-1">
+            <li class="die-item" data-side="1">
+              <span class="dot"></span>
+            </li>
+            <li class="die-item" data-side="2">
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </li>
+            <li class="die-item" data-side="3">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </li>
+            <li class="die-item" data-side="4">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </li>
+            <li class="die-item" data-side="5">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </li>
+            <li class="die-item" data-side="6">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </li>
+          </ol>
+        </div>
+          <div class="text-center">
+            <button type="button" id="roll-button" >Roll A Die</button>
+            <script src="{{url_for('static',filename='app.js')}}"></script>
+          </div>
+      </div>
+
+      
+  </div>
+</div>
+</div>
+
+<div class="gap-30"></div>
+
+
+<div class="gap-30"></div>
+<!-- Plan for next week-->
+<div class="text-center">
+  <h2>Please deside the plan for the following week</h2>
+  <label>You received Bad Direction card, choose how you will react: </label>
+</div>
+
+<div style="position: relative;left: 30%">
+  
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for category,message in messages %}
+        {% if category == "error" %}
+          <p style="color:red">{{message}}</p>
+        {% endif %}
+        {% if category == "success" %}
+        <p style="color:blue">{{message}}</p>
+      {% endif %}
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+  <form action="/assign_plan_next_week/" method="post"> 
+    <br>
+      <label>Target Week #: </label>
+      <input name="WeekNum" type="number" placeholder="_th Week" /><br>
+      <label>Assign driver: </label>
+      <input name="DriverID" type="number" placeholder="Player ID" /><br>
+      <label>Assign destination city: </label>
+      <input name="CityID" type="number" placeholder="City ID" /><br>
+      <label>Offensive/Defensive cards you drew: </label>
+      <input name="CardName1" type="number" placeholder="card #" />
+      <input name="CardName2" type="number" placeholder="card #" />
+      <input name="CardName3" type="number" placeholder="card #" /><br>
+      <label>Defensive cards you use: </label>
+      <input name="RECardName1" type="number" placeholder="card #" />
+      <input name="RECardName2" type="number" placeholder="card #" />
+      <input name="RECardName3" type="number" placeholder="card #" /><br>
+      <label>Offensive cards you use: </label><br>
+      <input name="USCardName1" type="number" placeholder="card #" />
+      <input name="USTeamName1" type="number" placeholder="team #" /><br>
+      <input name="USCardName2" type="number" placeholder="card #" />
+      <input name="USTeamName2" type="number" placeholder="team #" /><br>
+      <input name="USCardName3" type="number" placeholder="card #" />
+      <input name="USTeamName3" type="number" placeholder="team #" /><br>
+    <br>
+    <button  id="assign_plan">submit</button>
+  </form>
+</div>
+
+<div class="gap-30"></div>
+
+<div style="position: relative;left: 30%">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for category,message in messages %}
+        {% if category == "challenge_error" %}
+          <p style="color:red">{{message}}</p>
+        {% endif %}
+        {% if category == "challenge_success" %}
+        <p style="color:blue">{{message}}</p>
+      {% endif %}
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+  <form action="/assign_challenge_to_commitment/" method="post"> 
+    <br>
+      <label>Please enter the challenge card ID to form a commitment pledge: </label>
+      <input name="CardID" type="number" style="width: 50px;" placeholder="card ID" />
+    <button  id="assign_attendence" style="text-align: center">submit</button>
+  </form>
+<div class="gap-30"></div>
+
+{%endif%}
+{%endblock content%}

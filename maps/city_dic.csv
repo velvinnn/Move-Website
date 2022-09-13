@@ -1,0 +1,29 @@
+ID,Name,x,y,bonus
+1,Puget Sound VA - Start,161,90, nothing
+2,Mount Rainier NP,158,125,5 points
+3,Crater Lake NP,95,242,4 points
+4,Boise VA,255,245,card #2
+5, Yellow Stone NP,380,250,2  points
+6,Reno VA,165,348,card #4
+7,Sequoia NP,129,439,4 points
+8,Greater Los Angeles VA,140,535,card #2
+9,Grand Canyon NP,269,483,3 points
+10,SLC VA,339,362,card #4
+11,Rocky Mountain NP,458,384,5 points
+12,Albuquerque VA,444,551,card #1
+13,Big Bend NP,516,751,2 points
+14,Houston VA,734,742,card #2
+15,Hot Springs NP,805,580,4 points
+16,Birmingham VA,965,602,card #4
+17,Congaree NP (Never heard of it),1113,581,4 points
+18,Everglades NP,1161,836,3 points
+19,Great Smokey Mountains NP,1018,531,4 points
+20,Durham VA ?Start,1167,514, nothing
+21,Richmond VA,1176,441,card #4
+22,Cuyahoga Valley NP,1070,356,3 points
+23,Grand Sand Dunes NP,930,358,3 points
+24,Voyagers NP,761,140,4 points
+25,Acadia NP,1325,183,1 points
+26,Bad Lands NP,765,357,card #3
+27,Unknown,700,291,card #2
+28,Unknown,543,259,1 points
