@@ -1,23 +1,21 @@
-card_id,card type,category,name,verify,reference page,measure1,goal1,days1,miles1,descriptions1,measure2,goal2,days2,miles2,descriptions2,measure3,goal3,days3,miles3,descriptions3
-1,Bonus,Bonus,Driver bonus,Being the car driver of the team this week.,,,,,,,,,,,,,,,,
-2,Bonus,Bonus,Try something new bonus,Every player that attends five consecutive MOVE! meetings will obtain a reliable passenger badge.,,,,,,,,,,,,,,,,
-3,Bonus,Bonus,Double-up bonus,,,,,,,,,,,,,,,,,
-4,Bonus,Bonus,Reliable passenger bonus,Attending at least 5 consecutive meetings.,,,,,,,,,,,,,,,,
-5,Chanllenge,Diet,Consume less calories,"In the Fitbit app, enter the foods you consumed to your food log",xx,food-summary-calories,<=2500,3,100,"Daily calory intake lower than 2,500 calorieson 3 days next week.",,,5,200,"Daily calori intake lower than 2,500 calories on 5 or more days next week.",,,,,
-6,Chanllenge,Diet,Drink more water,"In the Fitbit app, enter the water you drinked to your water log",xx,water-summary-water,>=2.7,3,100,Drink more than 11.5 cups (2.7 L) of fluids on 3 days next week.,,,5,200,Drink more than 11.5 cups (2.7 L) of fluids on 5 or more days next week.,,,,,
-7,Chanllenge,Exercise,Walk more,Wear fitbit watch and synchronize you steps in the Fitbit app,xx,activities-summary-steps, >= 6000,3,100,"6,000 steps on 3 days next week.",,,5,200,"6,000 steps on 5 or more days next week.",,,,,
-8,Chanllenge,Exercise,Burn more calories,Wear fitbit watch and synchronize you steps in the Fitbit app,xx,activities-summary-caloriesOut,>=3000,3,100,"Burn 3,000 calories daily on 3 days next week.",,,5,200,"Burn 2,500 calories on 5 or more days next week.",,,,,
-9,Chanllenge,Weight,Loss weight,Use fitbit scale to measure your weight and upload your weight to fitbit app.,xx,weight-weight-weight,>=0.5,avg,100,Lost 0.5 lb next week.,,>=1,avg,200,Lost 1 lb next week.,,,,,
-10,Adversity Action,,,,,,,,, please try to walk 80 miles per week,,,,,,,,,,
-11,Adversity Action,,,,,,,,, please try to walk 80 miles per week,,,,,,,,,,
-12,Adversity Action,,,,,,,,, please try to walk 80 miles per week,,,,,,,,,,
-13,Adversity Action,,,,,,,,, please try to walk 80 miles per week,,,,,,,,,,
-14,Adversity Action,,,,,,,,, please try to walk 80 miles per week,,,,,,,,,,
-15,Adversity Action,,,,,,,,, please try to walk 80 miles per week,,,,,,,,,,
-16,Adversity Action,,,,,,,,, please try to walk 80 miles per week,,,,,,,,,,
-17,Beneficial Action,,,,,,,,, please try to walk 80 miles per week,,,,,,,,,,
-18,Beneficial Action,,,,,,,,, please try to walk 80 miles per week,,,,,,,,,,
-19,Beneficial Action,,,,,,,,, please try to walk 80 miles per week,,,,,,,,,,
-20,Beneficial Action,,,,,,,,, please try to walk 80 miles per week,,,,,,,,,,
-21,Beneficial Action,,,,,,,,, please try to walk 80 miles per week,,,,,,,,,,
-22,Beneficial Action,,,,,,,,, please try to walk 80 miles per week,,,,,,,,,,
+card type,card name,card function
+Adversity Action Card,Flat-Tire,Reduce average team miles by 50
+Adversity Action Card,Low-Gas,Reduce average team miles by 50
+Adversity Action Card,Storm,Reduce average team miles by 50
+Beneficial Action Card,Spare-Tire,Reverses effect of flat tire
+Beneficial Action Card,Gas-Can,Reverses effect of low gas
+Beneficial Action Card,Snow-Tires,Reverses effect of storm
+Beneficial Action Card,Try-Something-New ,"Meet your challenge by doing something you??e never done before??ry a food you??e never tried, or exercise in a place you??e never been"
+Beneficial Action Card,Precision-Bonus ,Meet a walking or weight challenge to within 0.5 lbs or 100 steps.
+Beneficial Action Card,Double-up ,Playing this card allows a player to get extra miles by meeting his/her challenge and that of another player.  
+Beneficial Action Card,Draw-Three-Additional-Cards ,Extra challenges can be accepted to gain more points. This involves players doubling-up on challenges.
+Beneficial Action Card,Choose-Your-Own-Challenge,"Pick the diet, exercise, health behavior, or weight Challenge card of your choice."
+Beneficial Action Card,Double-Driver,Pick two people to be the driver for the week and earn double miles for both
+Super Action Cards,Cure-All,Eliminate any adversity any time
+Super Action Cards,Boat ,Allows you to cross bodies of water
+Super Action Cards,Teammate-Challenge ,Challenge a teammate to their challenge card and double miles if both reach their goals
+Super Action Cards,Nexus-card,Gets you into Canada
+Super Action Cards,Wings (Can only be used once),Fly to any destination you have already visited.
+Super Action Cards,Plane (Can only be used once),Go to your home VAMC
+Super Action Cards,Map-Reader,"On every turn, overturn one Super Action Card to see what it is."
+Super Action Cards,Turbo ,Doubles Team miles

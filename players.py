@@ -24,20 +24,6 @@ def write_weekly_miles(user_id,miles,week_num):
         f.write(str(week_num)+","+str(miles)+"\n")
     return
 
-def write_new_player_cards(user_id):
-    if not os.path.isfile(cards_dir+user_id+".csv"):
-        with open(cards_dir+user_id+".csv","w") as f:
-            f.write("week #,card ids\n")
-            for i in range(1,31):
-                f.write(str(i)+",\n")
-    return
-def write_new_player_miles(user_id):
-    if not os.path.isfile(miles_dir+user_id+".csv"):
-        with open(miles_dir+user_id+".csv","w") as f:
-            f.write("week #,miles\n")
-            for i in range(1,31):
-                f.write(str(i)+",\n")
-    return
 def write_new_player_steps(user_id):
     if not os.path.isfile(steps_dir+user_id+".csv"):
         with open(steps_dir+user_id+".csv","w") as f:
@@ -89,7 +75,6 @@ def read_cards(user_id,date=None,week_num=None):
     return current_cards,previous_cards
 
 
-
 def get_all_palyer_ids():
     result=[]
     team_ids=get_all_team_ids()
@@ -113,14 +98,15 @@ def get_player_accumulative_steps(player_id,week_num):
 def get_player_accumulative_miles(player_id,week_num):
     total_miles=np.zeros(24)
     current_miles=0
-    write_new_player_miles(player_id)
-    miles=pd.read_csv(miles_dir+str(player_id)+".csv")
-    for index in miles.index:
-        if int(miles['week #'][index])<=week_num:
-            total_miles[miles['week #'][index]]=miles['miles'][index]
-        if int(miles['week #'][index])==week_num:
-            current_miles=miles['miles'][index]
-    return np.sum(total_miles),current_miles
+    if os.path.exists(miles_dir+str(player_id)+".csv"):
+        miles=pd.read_csv(miles_dir+str(player_id)+".csv")
+        for index in miles.index:
+            if int(miles['week #'][index])<=week_num:
+                total_miles[miles['week #'][index]]=miles['miles'][index]
+            if int(miles['week #'][index])==week_num:
+                current_miles=miles['miles'][index]
+        return np.sum(total_miles),current_miles
+    return 0,0
 
 def get_player_progress(player_id,week_num):
     player_info=get_user_info(player_id)
@@ -131,7 +117,7 @@ def get_player_progress(player_id,week_num):
         player_info["miles"],player_info["current_miles"]=0,0
     player_info["commitment_cards"]=[]
     for i in range(1,int(week_num)+1):
-        if os.path.exists("static/commitment_cards/"+player_id+"_week"+str(i)+".png"):
+        if os.path.exists("static/commitment_cards/"+player_id+"_week"+str(i)+".json"):
             player_info["commitment_cards"].append(player_id+"_week"+str(i))
     team_ids=get_all_team_ids()
     for team_id in team_ids:

@@ -36,44 +36,21 @@ def read_city_info(city_dic,city_id):
         if city_dic['ID'][i]==int(city_id):
             return city_dic.loc[[i]].to_dict('list')
     return 
-def find_customized_city_distance_between(cid1,cid2):
+def find_customized_city_distance_between(cid1,cid2,target):
     message="There is no direct route between city #"+cid1+" and city #"+cid2
     category = "city_distance_False"
     dis=pd.read_csv(city_distance_file,dtype=str)
     city_dic=read_cities_dic()
-    cinfo1,cinfo2=read_city_info(city_dic,cid1),read_city_info(city_dic,cid2)
+    cinfo1,cinfo2,tinfo=read_city_info(city_dic,cid1),read_city_info(city_dic,cid2),read_city_info(city_dic,target)
     for i in dis.index:
         if dis['city_id1'][i]==cid1 and dis['city_id2'][i]==cid2:
             message="Between the current city ("+cinfo1['Name'][0]+") and the targt city ("+cinfo2['Name'][0]+"), the shorter route is "+dis['dis1'][i]+" miles, "
             message+="the longer route is "+dis['dis2'][i]+" miles. \n"
-            if "nothing" not in cinfo2['bonus'][0]:
-                message+="You will get "+cinfo2['bonus'][0]+" when you arrive "+cinfo2['Name'][0]
+            if "nothing" not in tinfo['bonus'][0]:
+                message+="You will get "+tinfo['bonus'][0]+" when you arrive "+tinfo['Name'][0]
             category = "city_distance_True"
             return message,category
     return message,category
-def city_dis(x1,y1,x2,y2):
-
-    return np.sqrt((x1-x2)**2+(y1-y2)**2)*86
-def xy_plot_to_map(x,y):
-
-    return x*(x_max-x_min)+x_min,(1-y)*(y_max-y_min)+y_min
-
-def find_nearest_city(x,y):
-    x,y=xy_plot_to_map(x,y)
-    [states,cities,lat,long,ids,points]=read_cities_dic(filename="maps/city_dic.csv")
-    min_distance=100000
-    target_id=0
-    for i in range(len(states)):
-        current_dis=city_dis(x,y,long[i],lat[i])
-        if current_dis<min_distance:
-            min_distance=current_dis
-            target_id=i   
-    return states[target_id],cities[target_id],lat[target_id],long[target_id],ids[target_id]
-
-def new_miles(lat,long,team_id):
-    city_dic=read_cities_dic()
-    x,y=read_cities(city_dic,team_id=team_id)
-    return np.sqrt(city_dis(long,lat,x[-1],y[-1]))*129/2.194
 
 def get_team_info(team_id="1"):
     # return the user's information as a dictionary
@@ -152,6 +129,8 @@ def read_team_progress_at(team_id,week_num=2):
                     else:
                         team_progress[key]=[team_progress[key]]
             #print(team_progress)
+            if not team_progress['points']:
+                team_progress['points']=0
             if team_progress["driver id"]:
                 driver=get_user_info(team_progress["driver id"])
                 team_progress["driver"]=driver["first_name"]+" "+driver["last_name"]
@@ -160,7 +139,7 @@ def read_team_progress_at(team_id,week_num=2):
             if team_progress["start location id"]: 
                 team_progress["location"]=read_city_info(city_dic,team_progress["start location id"])['Name'][0]
             if team_progress["target location id"] and team_progress["target location id"]!='nan': 
-                team_progress["destination"]=read_city_info(city_dic,team_progress["target location id"])['Name']
+                team_progress["destination"]=read_city_info(city_dic,team_progress["target location id"])['Name'][0]
             else:
                 team_progress["destination"]='not assigned yet'
             overall_progress=read_team_progress(team_id)
@@ -170,6 +149,7 @@ def read_team_progress_at(team_id,week_num=2):
             
             
             team_info=get_team_info(team_id)
+            team_progress["team_id"]=team_id
             team_progress["team_name"]=team_info["team_name"]
             team_progress["player_ids"]=team_info["player_ids"]
             team_progress["game_start_date"]=team_info["game_start_date"]
@@ -223,6 +203,17 @@ def get_team_week_num(team_id):
     week_num=max([int(i) for i in team_progress['the_ith_week']])
     return week_num
 
+def add_new_week_to_file(team_id,week_num,start_loc):
+    df= pd.read_csv(team_dir+team_id+".csv",dtype=str)
+    df = df.append(pd.Series(dtype=str),1)
+    df.iloc[-1, df.columns.get_loc('the_ith_week')]=week_num
+    df.iloc[-1, df.columns.get_loc('start location id')]=start_loc
+    if int(week_num)>1:
+        df.iloc[-1, df.columns.get_loc('cards_at_hand')]=df.iloc[-2, df.columns.get_loc('cards_at_hand')]
+        df.iloc[-1, df.columns.get_loc('points')]=df.iloc[-2, df.columns.get_loc('points')]
+    df.to_csv(team_dir+team_id+".csv", index=False,float_format='%.0f')
+    return 
+#print(add_new_week_to_file("1","1","1"))
 #print(read_team_progress("1"))
 #print(read_team_progress_at("1",week_num=2))
 '''

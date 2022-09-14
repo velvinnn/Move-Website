@@ -8,7 +8,7 @@
 <div class="jumbotron">
   <div class="container text-center">
     <h1>MAP</h1>      
-    <p>A map of the US, with cars from all team</p>
+    <p>A map of the US, with cars from all teams</p>
     <img src="{{ url_for('static', filename='teams_all.png') }}" style="width:100%" alt="Image">
   </div>
 </div>
@@ -17,13 +17,14 @@
 <!-- leaderboard for team-->
 <div class="text-center">
   <h1> Team Leaderboard</h1>
+  <font size=3>
   <table class="table table-striped table-bordered" id="sortTable" cellspacing="0" width="100%">
     <thead>
       <tr>
+        <th class="th-sm">Team ID</th>
         <th class="th-sm">Team Name</th>
         <th class="th-sm">Player Ids</th>
-        <th class="th-sm">Game Start Date</th>
-        <th class="th-sm"># Weeks Completed</th>
+        <th class="th-sm">Current week #</th>
         <th class="th-sm"># Cities Visited</th>
         <th class="th-sm">Accumulative Miles</th>
         <th class="th-sm">Current Location</th>
@@ -33,9 +34,9 @@
     <tbody>
       {% for team in team_leader_board %}
       <tr>
+        <td>{{team.team_id}}</td>
         <td>{{team.team_name}}</td>
         <td>{{team.player_ids}}</td>
-        <td>{{team.game_start_date}}</td>
         <td>{{team.the_ith_week}}</td>
         <td>{{team.total_cities}}</td>
         <td>{{team.total_miles}}</td>
@@ -45,49 +46,10 @@
       {% endfor %}
     </tbody>
   </table>
+  </font>
 </div>
 <script>
   $('#sortTable').DataTable();
 </script>
-{% if login == 'True' %}
-<!-- leaderboard for player-->
-<div class="text-center">
-  <h1> Player Leaderboard</h1>
-  <table class="table table-striped table-bordered" id="PlayerTable" cellspacing="0" width="100%">
-    <thead>
-      <tr>
-        <th class="th-sm">Player ID
-        </th>
-        <th class="th-sm">Player Name
-        </th>
-        <th class="th-sm">Accumulative miles
-        </th>
-        <th class="th-sm">Team Name
-        </th>
-        <th class="th-sm">Team ID
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for player in player_leaderboard %}
-      <tr>
-        <td>{{player.user_id}}</td>
-        <td>{{player.name}}</td>
-        <td>{{player.miles}}</td>
-        <td>{{player.team_name}}</td>
-        <td>{{player.team_id}}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-<script>
-  $('#PlayerTable').DataTable();
-</script>
-{% else %}
-{% endif %}
-
-
-
 {%endblock content%}
 

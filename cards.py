@@ -5,12 +5,17 @@ import matplotlib.pyplot as plt
 from PIL import Image, ImageFont, ImageDraw 
 import textwrap
 import math
-
+import os
 cards_file="static/cards.csv"
 card_blank="static/card_blank.png"
 fonts_file="static/arial.ttf"
+cards_image="static/cards_image"
 card_key_list=['measure','goal','days']
 
+def read_action_cards():
+    df=pd.read_csv(cards_file,dtype=str).values.tolist()
+    
+    return df
 def read_card_info(card_id):
     #return the information of a certain card
     card_id=str(card_id)
@@ -33,7 +38,6 @@ def read_card_info(card_id):
     return card_info
 
 def card_directory(card_id):
-
     return "static/cards_image/"+str(card_id)+".png"
 def get_all_cards_ids():
     #return the ids for all cards
@@ -123,20 +127,12 @@ def print_all_cards():
     return
 
 def draw_cards():
-    card_ids=get_all_cards_ids()[4:]
-    print(card_ids)
-    draw_id=random.choice(card_ids)
+    f=[]
+    for (dirpath, dirnames, filenames) in os.walk(cards_image):
+        f.extend(filenames)
+        break
+    filename=random.choice(f)
 
-    return str(draw_id)+".png"#card_directory(draw_id)
+    return "cards_image/"+filename#card_directory(draw_id)
 
-def get_cards_list(cards_drawn):
-    if len(cards_drawn)==0:
-        return []
-    else:
-        display_cards=cards_drawn.split(",")
-        result=[]
-        for c in display_cards:
-            if '.png' in c:
-                result.append(c)
-        return result
 

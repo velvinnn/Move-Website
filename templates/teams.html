@@ -1,395 +1,533 @@
 {% extends 'navigation.html'%} 
 {%block content%}
-<style>
-  table, th, td {
-    border:1px solid black;
-  }
-  </style>
-<!-- Map-->
-<div class="jumbotron">
-  <div class="container text-center">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class=flashes>
-        {% for category,message in messages %}
-          {% if category == "synce_error" %}
-            <p style="color:red">{{message}}</p>
-          {% endif %}
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-    <h1>Team: {{team_info.team_name}}</h1>
-    <p>Welcome to the Week #{{team_info.the_ith_week}}! </p>
-    <p>You are currently at {{team_info.location}}. Your car driver is {{team_info.driver}}. Your destination is {{team_info.destination}}. </p>
-    <p>Your team currently has action cards: {{team_info.cards_at_hand}}<p>
-    <img class="map_image" src="{{ url_for('static', filename='teams_')}}{{ team_info.team_id }}{{map_id}}{{ '.png' }}" style="width:100%" alt="Image" id='TeamMap'>
-    </div>
-</div>
-
-<!--  find interested cities by a dropdown list  -->
-<div class="container text-center"> 
-  <h2>City Distance Calculator</h2>
-  {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class=flashes>
-        {% for category,message in messages %}
-        {% if category == "city_distance_True" %}
-        <p style="color:blue">{{message}}</p>
-        {% endif %}
-        {% if category == "city_distance_False" %}
-        <p style="color:red">{{message}}</p>
-        {% endif %}
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-  <form action="/find_city_distance/" method="post"> 
-      <select id="DropDownCity1" name="DropDownCity1" placeholder="Pick your start location">
-        <option value="">Pick your start location</option>
-        {% for name,id in city_names %}
-        <option value={{id}}>#{{id}}','{{name}}</option>
-        {% endfor%}
-        </select>
-        <select id="DropDownCity2" name="DropDownCity2" placeholder="Pick your target location">
-          <option value="">Pick your target location</option>
-          {% for name,id in city_names %}
-          <option value={{id}}>#{{id}}','{{name}}</option>
-          {% endfor%}
-        </select>
-      <button  id="submit_distance" style="text-align: center">submit</button>
-  </form>
-</div>
-<script>
-  $(document).ready(function () {
-      $('select').selectize({
-          sortField: 'text'
-      });
-  });
-</script> 
-
-
-
-<!-- completing this week-->
-<h1>Step 1: Summarizing this week (except at the first meeting)</h1>
-<div class="container text-center">
-<!-- Status of each team member-->
-<div class="container text-center">
-  <h1> Player Leaderboard</h1>
-  <p>Please review each team member's progress and commitment card</p>
-  <table class="table table-striped table-bordered" id="PlayerTeamTable" cellspacing="0" width="100%">
-    <thead>
-      <tr>
-        <th class="th-sm">Player ID</th>
-        <th class="th-sm">Player Name</th>
-        <th class="th-sm">Current Miles</th>
-        <th class="th-sm">Accumulative Miles</th>
-        <th class="th-sm">Commitment card</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for player in player_leaderboard %}
-      <tr>
-        <td>{{player.user_id}}</td>
-        <td>{{player.name}}</td>
-        <td>{{player.current_miles}}</td>
-        <td>{{player.miles}}</td>
-        <td>
-          {% for pid in player.commitment_cards%}
-          <a href="{{ url_for('static', filename='commitment_cards/')}}{{pid}}{{ '.png' }}" style="text-align:center; background: url('button.png'); width: 100px; height: 50px;"> {{pid}}</a>
-          {% endfor %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-<script>
-  $('#PlayerTeamTable').DataTable();
-</script>
-</div>
-
+{% if login != 'True' %}
+<h2>Please login to see the information!</h2>
+{%endif%}
 {% if login == 'True' %}
-
-<!-- Weekly Miles calculater -->
-<div class="container text-center">
-  <h1> Weekly Miles calculater </h1>
-  <p> Please enter the information that you would like to query:</p>
-  <form action="/retrieve_participant_data/" method="post">
-  <select name="dataType" id="dataType",style="width:10%">
-    <option selected="selected"></option>
-    <option value="steps">steps from Fitbit</option>
-    <option value="calories">calories from Fitbit</option>
-    <option value="Minutes Active">Minutes Active from Fitbit</option>
-    <option value="weight">weight from Fitbit</option>
-    <option value="bmi">BMI from Fitbit</option>
-    </select><br>
-  player id<input type="number" name="id" value="True"> <br>
-  start date<input type="date" name="start_date" value="True">  <br>
-  end date<input type="date" name="end_date" value="True">  <br>
-  <button  id="retrieve_data" style="text-align: center">submit</button>
-  </form>
-  {% if parcitipant_data != 'None' %}
-    <img class="map_image" src="{{ url_for('static', filename='participant_data/')}}{{ parcitipant_data }}{{ '.png' }}" style="width:80%" alt="Image" id='pd'>
-  {% endif %}
-  {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class=flashes>
-        {% for category,message in messages %}
-        {% if category == "retrieval error!" %}
-        <p style="color:red">{{message}}</p>
-        {% endif %}
-        {% endfor %}
-        </ul>
-      {% endif %}
-  {% endwith %}
-    
-    <p> According to the commitment card and how the play was doing, please update the player miles</p>
-    <form action="/update_miles/" method="post">
-      player id<input type="number" name="id" value="True" id="id"> <br>
-      miles<input type="number" name="miles" value="True" id="miles">  <br>
-      <button  id="update_miles" style="text-align: center">update miles</button>
-    </form> 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <ul class=flashes>
-      {% for category,message in messages %}
-        {% if category == "update_miles" %}
-        <p style="color:blue">{{message}}</p>
-        {% endif %}
-        {% if category == "update_miles_error" %}
-        <p style="color:red">{{message}}</p>
-        {% endif %}
-      {% endfor %}
-      </ul>
-    {% endif %}
-{% endwith %}    
+<div class="jumbotron">
   
-
-<div class="container text-center">
-<!-- Weekly Points calculator-->
-<h1>Please calculate the points this week</h1>
-<p>Your team currenly has traveled {{team_info.player_miles}} miles, as the average among players.</p>
-<p>To reach your destination, you need to travel {{team_info.goal_miles}} miles.</p>
-
-<form action="/React_with_cards/" method="post"> 
-  <label>This week, you received offensive action card(s): 
-    {% for card in team_info.cards_received %}
-    {{card}};
-    {% endfor%} </label><br>
-  <label>Currently, you have action card(s):     
-    {% for card in team_info.cards_at_hand %}
-    {{card}};
-    {% endfor%} </label><br>
-  <label>Do you want to react with defensive action card(s)? You can use multiple cards one by one</label> <br>
-  <select name="cardsUsed" id="cardsUsed",style="width:150px;">
-    <option selected="selected",style="width:150px"></option>
-    <option value="Flat tire",style="width:150px">Flat tire</option>
-    <option value="Bad direction",style="width:150px">Bad direction</option>
-    <option value="Spare tire",style="width:150px">Spare tire</option>
-    <option value="Map",style="width:150px">Map</option>
-    <option value="Turbo charger",style="width:150px">Turbo charger</option>
-    </select>
-  <button  id="/React_with_cards/">Use defensive action cards</button>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <ul class=flashes>
-      {% for category,message in messages %}
-        {% if category == "defensive_card" %}
-        <p style="color:blue">{{message}}</p>
-        {% endif %}
-        {% if category == "defensive_card_error" %}
-          <p style="color:red">{{message}}</p>
-        {% endif %}
-      {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
-</form>
-
-<form action="/attack_with_cards/" method="post"> 
-  <label>You can attack another team with your offensive card at hand: 
-  <select name="cardsUsed" id="cardsUsed",style="width:150px;">
-    <option selected="selected",style="width:150px"></option>
-    <option value="Flat tire",style="width:150px">Flat tire</option>
-    <option value="Bad direction",style="width:150px">Bad direction</option>
-    </select><br>
-    Please enter the team id, which you want to attack:
-    <input type="number" name="target_team" value="True">  <br>
-  <button  id="/attack_with_cards/">Use offensive action card</button>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <ul class=flashes>
-      {% for category,message in messages %}
-        {% if category == "offensive_card" %}
-        <p style="color:blue">{{message}}</p>
-        {% endif %}
-        {% if category == "offensive_card_error" %}
-          <p style="color:red">{{message}}</p>
-        {% endif %}
-      {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
-</form>
-<p>Currently, you have used action card(s):     
-  {% for card in team_info.cards_used %}
-  {{card}};
-  {% endfor%} </p><br>
-</div>
-</div>
-<div class="gap-30"></div>
-<h1>Step 2: Plan for next week</h1>
-<!-- Draw Cards  <img src="{{ image}}" style="width:90%" alt="Image" id="myimg2"> -->
-<div class="row text-center">
-  {% for image in player_images %}
-  <div class="column">
-    <img src="{{ url_for('static', filename=image) }}" style="width:90%" alt="Image" id="myimg2">
-    
-  </div>
-  {% endfor %}
-</div>
-<div class="text-center">
-
-  <form action="/Drawcards/" method="get"> 
-    <button id="DrawChallenges">Draw cards</button>
-  </form>
-</div>
-
-
-<div class="gap-30"></div>
-
-<!-- Play-->
-<div class="container text-center">
-  <div class="row">
-      <!-- dice-->
-      <div class="col-md-6 vcenter text-center  add_padding">
-        <div class="dice">
-          <ol class="die-list even-roll" data-roll="1" id="die-1">
-            <li class="die-item" data-side="1">
-              <span class="dot"></span>
-            </li>
-            <li class="die-item" data-side="2">
-              <span class="dot"></span>
-              <span class="dot"></span>
-            </li>
-            <li class="die-item" data-side="3">
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-            </li>
-            <li class="die-item" data-side="4">
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-            </li>
-            <li class="die-item" data-side="5">
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-            </li>
-            <li class="die-item" data-side="6">
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-            </li>
-          </ol>
+<!-- view the private information after login-->
+  <div class="container jumbotron">
+    <div class="row content jumbotron">
+      <!--the right panel is team's infomration-->
+      <div class="col-lg-9">
+        <!--map-->
+        <div class="container text-center">
+          
+          <h2>Team: {{team_info.team_name}}</h1>
+          <h3>Welcome to the Week #{{team_info.the_ith_week}}! </h3>
+          <p> You can find the cities you have traveled in this map. </p>
+          <img class="map_image" src="{{ url_for('static', filename='teams_')}}{{ team_info.team_id }}{{map_id}}{{ '.png' }}" style="width:60%" alt="Image" id='TeamMap'>
         </div>
-          <div class="text-center">
-            <button type="button" id="roll-button" >Roll A Die</button>
-            <script src="{{url_for('static',filename='app.js')}}"></script>
+        <div class="gap-30"></div>
+        <!--Step 1 -->
+        <div class="container jumbotron">
+          <h2> &nbsp &nbsp Step 1: Summarizing this week (except at the first meeting)</h2> 
+          
+          <!--Player Leaderboard -->
+          <div class="container ">
+            <h3>Player Leaderboard</h3>
+              <p>Please review each team member's progress and commitment card</p>
+              <font size=3>
+              <table class="table table-striped table-bordered" id="PlayerTeamTable" cellspacing="0" width="100%">
+                <thead>
+                  <tr>
+                    <th class="th-sm">Player ID</th>
+                    <th class="th-sm">Player Name</th>
+                    <th class="th-sm">Current Miles</th>
+                    <th class="th-sm">Accumulative Miles</th>
+                    <th class="th-sm">Commitment card</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for player in player_leaderboard %}
+                  <tr>
+                    <td>{{player.user_id}}</td>
+                    <td>{{player.name}}</td>
+                    <td>{{player.current_miles}}</td>
+                    <td>{{player.miles}}</td>
+                    <td>
+                      {% for pid in player.commitment_cards%}
+                      <a href="{{ url_for('static', filename='commitment_cards/')}}{{pid}}{{ '.json' }}" style="text-align:center; background: url('button.png'); width: 100px; height: 50px;"> {{pid}}</a>
+                      {% endfor %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              </font>
           </div>
-      </div>
+          <div class="gap-30"></div>
 
-      
+          <!--Weekly Miles Calculator-->
+          <h3>Player Miles Calculator </h3>
+          <div class="container ">
+            {% if parcitipant_data != 'None' %}
+              <img class="map_image" src="{{ url_for('static', filename='participant_data/')}}{{ parcitipant_data }}{{ '.png' }}" style="width:60%" alt="Image" id='pd'>
+            {% endif %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                  <ul class=flashes>
+                  {% for category,message in messages %}
+                  {% if category == "retrieval error!" %}
+                  <p style="color:red">{{message}}</p>
+                  {% endif %}
+                  {% endfor %}
+                  </ul>
+                {% endif %}
+            {% endwith %}
+            <form action="/retrieve_participant_data/" method="post">
+              <p>
+              Please choose the information that you would like to query:&nbsp 
+              <select name="dataType" id="dataType",style="width:30%">
+                <option selected="selected"></option>
+                <option value="steps">steps from Fitbit</option>
+                <option value="calories">calories from Fitbit</option>
+                <option value="Minutes Active">Minutes Active from Fitbit</option>
+                <option value="weight">weight from Fitbit</option>
+                <option value="bmi">BMI from Fitbit</option>
+              </select><br> 
+              player id&nbsp <input type="number" name="id" value="True"> <br>
+              start date&nbsp <input type="date" name="start_date" value="True">
+              &nbspend date&nbsp <input type="date" name="end_date" value="True">
+              &nbsp<button  id="retrieve_data" style="text-align: center">submit</button> 
+              </p>
+            </form>
+          </div>
+
+          <div class="gap-30"></div>
+          <h3> Player Miles Update </h3> 
+          <div class="container">
+            <p> According to the commitment card and how the play was doing, please update the player miles</p>
+            <form action="/update_miles/" method="post">
+              <p>player id<input type="number" name="id" value="True" id="id">
+                &nbsp miles<input type="number" name="miles" value="True" id="miles">
+                &nbsp<button  id="update_miles" style="text-align: center">update miles</button></p>
+              </form> 
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                  <ul class=flashes>
+                  {% for category,message in messages %}
+                    {% if category == "update_miles" %}
+                    <p style="color:blue">{{message}}</p>
+                    {% endif %}
+                    {% if category == "update_miles_error" %}
+                    <p style="color:red">{{message}}</p>
+                    {% endif %}
+                  {% endfor %}
+                  </ul>
+                {% endif %}
+            {% endwith %} 
+          </div>
+          
+          <div class="gap-30"></div>
+          <!--Use your card and calculate the miles-->
+          <h3>Play Action Cards </h3>
+          <div class="container ">
+            <!--use cards on your own team-->
+            <form action="/React_with_cards/" method="post"> 
+              <p>Do you want to use action cards on your own team? You can use multiple cards one by one<br>
+                <select name="cardsUsed" id="cardsUsed",style="width:150px;">
+                    <option selected="selected",style="width:150px"></option>
+                    {% for type,card,info in action_cards %}
+                    <option value={{card}}>{{card}}</option>
+                    {% endfor%}
+                </select>
+                <button  id="/React_with_cards/">Use</button>
+                  {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                      <ul class=flashes>
+                      {% for category,message in messages %}
+                        {% if category == "defensive_card" %}
+                        <p style="color:blue">{{message}}</p>
+                        {% endif %}
+                        {% if category == "defensive_card_error" %}
+                          <p style="color:red">{{message}}</p>
+                        {% endif %}
+                      {% endfor %}
+                      </ul>
+                    {% endif %}
+                  {% endwith %}
+              </p>
+            </form>
+            <!--attack with cards-->
+            <form action="/attack_with_cards/" method="post"> 
+              <p>You can attack another team with your offensive card at hand: 
+                <select name="cardsUsed" id="cardsUsed",style="width:150px;">
+                    <option selected="selected",style="width:150px"></option>
+                    {% for type,card,info in action_cards %}
+                    <option value={{card}}>{{card}}</option>
+                    {% endfor%}
+                </select><br>
+                Please enter the team id, which you want to attack:
+                <input type="number" name="target_team" value="True">
+              <button  id="/attack_with_cards/">Attack</button> </p>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                  <ul class=flashes>
+                  {% for category,message in messages %}
+                    {% if category == "offensive_card" %}
+                    <p style="color:blue">{{message}}</p>
+                    {% endif %}
+                    {% if category == "offensive_card_error" %}
+                      <p style="color:red">{{message}}</p>
+                    {% endif %}
+                  {% endfor %}
+                  </ul>
+                {% endif %}
+                {% endwith %}
+            </form>
+          </div>
+
+          <!--Deside the target city-->
+          <div class="gap-30"></div>
+          <h3>Calculate Accumulative Miles</h3>
+          <div class="container ">
+            <p>Based on the action cards, please calculate your final miles:</p>
+            <form action="/assign_actual_miles/" method="post"> 
+              <p> Final miles = {{team_info.player_miles}} + <input type="number" name="actual_miles" value="True">
+              <button  id="/assign_actual_miles/">calculate</button> </p>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                  <ul class=flashes>
+                  {% for category,message in messages %}
+                    {% if category == "actual_miles" %}
+                    <p style="color:blue">{{message}}</p>
+                    {% endif %}
+                    {% if category == "actual_miles_error" %}
+                      <p style="color:red">{{message}}</p>
+                    {% endif %}
+                  {% endfor %}
+                  </ul>
+                {% endif %}
+              {% endwith %}
+            </form>
+          </div>
+
+          <!--Deside the target city-->
+          <div class="gap-30"></div>
+          <h3>Decide Your Destination and Way to Drive</h3>
+          <div class="container">
+          <p>Please calculate the city distance. You can try different cities and use your accumulative miles wisely.</p>
+            <font size=3>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                      <ul class=flashes>
+                      {% for category,message in messages %}
+                      {% if category == "city_distance_True" %}
+                      <p style="color:blue">{{message}}</p>
+                      {% endif %}
+                      {% if category == "city_distance_False" %}
+                      <p style="color:red">{{message}}</p>
+                      {% endif %}
+                      {% endfor %}
+                      </ul>
+                    {% endif %}
+                {% endwith %}
+                <form action="/find_city_distance/" method="post"> 
+                  <p>
+                    <select id="DropDownCity1" name="DropDownCity1" placeholder="Pick your start location">
+                        <option value="">Pick your start location</option>
+                        {% for name,id in city_names %}
+                          <option value={{id}}>#{{id}}','{{name}}</option>
+                        {% endfor%}
+                      </select>
+                      
+                      <select id="DropDownCity2" name="DropDownCity2" placeholder="Pick your target location">
+                        <option value="">Pick your target location</option>
+                        {% for name,id in city_names %}
+                          <option value={{id}}>#{{id}}','{{name}}</option>
+                        {% endfor%}
+                      </select>
+
+                    <button  id="submit_distance" style="text-align: center">submit</button>
+                  </p>
+                </form>
+            </font>
+          <form action="/decide_destination_city/" method="post"> 
+            <p>Assign destination city:
+            <select id="destination" name="destination" placeholder="Pick your start location">
+              <option value="">Pick your destination</option>
+              {% for name,id in city_names %}
+                <option value={{id}}>#{{id}}','{{name}}</option>
+              {% endfor%}
+              </select><br>
+              Pick your route and assign the miles:
+              <input name="goal_miles" type="number"/><br>
+              Bonus or penalty miles from action cards:
+              <input name="bonus_miles" type="number"/>
+              <button  id="assign_plan">submit</button></p>
+          </form>
+          </div>  
+
+          <!--Update this week-->
+          <div class="gap-30"></div>
+          <h3>Summarize this Week</h3>
+          <div class="container">
+            <p>If your accumulative miles are greater than your goal miles, congrats, you reach your destination! You can get the corresponding points or cards, if applicable.</p>
+            <form action="/assign_points/" method="post"> 
+              <p> 
+              New points = current points ({{team_info.points}}) + <input type="number" name="points" value="True">
+              <button  id="/assign_points/">calculate points</button>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                  <ul class=flashes>
+                  {% for category,message in messages %}
+                    {% if category == "points" %}
+                    <p style="color:blue">{{message}}</p>
+                    {% endif %}
+                    {% if category == "points_error" %}
+                      <p style="color:red">{{message}}</p>
+                    {% endif %}
+                  {% endfor %}
+                  </ul>
+                {% endif %}
+              {% endwith %}
+              </p>
+            </form>
+            <form action="/store_card/" method="post"> 
+              <p>
+                Pick up the card(s) at your destination, if any:
+                <select id="store_card" name="store_card">
+                  <option selected="selected",style="width:150px"></option>
+                  {% for type,card,info in action_cards %}
+                    <option value={{card}}>{{card}}</option>
+                  {% endfor%}
+                </select>
+                <button  id="store_card" style="text-align: center">submit</button>
+                <p>
+            </form>
+          </div>
+          
+          <div class="gap-30"></div>
+          <h3>Proceed to the New Week</h3>
+          <div class="container">
+            <p>Please make sure that the information in the Team info is correct, and assign the start location next week. If you reach your goals this week, you will start at a new location. Otherwise, you will still be at the same location as this week.</p>
+            <p><b>Please be careful, this action cannot be undone. You will start a new week, and cannot go back to this week.</b></p>
+            <form action="/start_new_week/" method="post"> 
+              <p>
+                choose your start location:
+                <select id="start_new_week" name="start_new_week" placeholder="Pick your start location">
+                  <option value="">Pick your start location</option>
+                  {% for name,id in city_names %}
+                  <option value={{id}}>#{{id}}','{{name}}</option>
+                  {% endfor%}
+                  </select>
+                <button  id="/start_new_week/">start the new week</button>
+                  {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    <ul class=flashes>
+                    {% for category,message in messages %}
+                      {% if category == "new_week" %}
+                      <p style="color:blue">{{message}}</p>
+                      {% endif %}
+                      {% if category == "new_week_error" %}
+                        <p style="color:red">{{message}}</p>
+                      {% endif %}
+                    {% endfor %}
+                    </ul>
+                  {% endif %}
+                {% endwith %}
+              </p> 
+            </form>
+          </div>
+        </div>
+
+        <div class="gap-30"></div>
+        <div class="gap-30"></div>
+
+        <!--Step 2-->
+        
+        <div class="container jumbotron">
+          <h2> &nbsp &nbsp Step 2: Assign Plan for the New Week</h2>
+          <!--Row Dice and assign a driver-->
+          <h3>Please Row the Die to Decide The Driver.</h3>
+          <div class="container">     
+            <div class="dice">
+                <ol class="die-list even-roll" data-roll="1" id="die-1">
+                  <li class="die-item" data-side="1">
+                    <span class="dot"></span>
+                  </li>
+                  <li class="die-item" data-side="2">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </li>
+                  <li class="die-item" data-side="3">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </li>
+                  <li class="die-item" data-side="4">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </li>
+                  <li class="die-item" data-side="5">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </li>
+                  <li class="die-item" data-side="6">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </li>
+                </ol>
+            </div>       
+            <div class="text-center">
+                  <p><button type="button" id="roll-button" >Roll A Die</button></p>
+                  <script src="{{url_for('static',filename='app.js')}}"></script>
+            </div>
+          </div>
+          <div class="gap-30"></div>
+          <div class="container">            
+            <form action="/assign_plan_next_week/" method="post"> 
+              <p> Assign driver:
+                <input name="DriverID" type="number" placeholder="Player ID" />
+                <button  id="assign_plan">submit</button> </p>
+            </form>
+                      {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages %}
+                        <ul class=flashes>
+                        {% for category,message in messages %}
+                        {% if category == "driver_error" %}
+                          <p style="color:red">{{message}}</p>
+                        {% endif %}
+                        {% if category == "driver_success" %}
+                        <p style="color:blue">{{message}}</p>
+                      {% endif %}
+                        {% endfor %}
+                        </ul>
+                      {% endif %}
+                    {% endwith %}
+          </div>
+          
+          <!-- Draw cards-->
+          <h3>Draw Cards</h3>
+          <div class="gap-30"></div>
+          <div class="container">
+            <!--cards and images-->
+            <div class="container">
+              {% for image in player_images %}
+              <div class="col-md-3">
+                <img src="{{ url_for('static', filename=image) }}" style="width:90%" alt="Image" id="myimg2">
+              </div>
+              {% endfor %}
+              <br>
+            </div>
+            <div class="container text-center">      
+              <form action="/Drawcards/" method="get"> 
+                <p><button id="DrawChallenges">Draw cards</button> </p>
+              </form>
+            </div>
+            <!--store action cards-->
+            <form action="/store_card/" method="post"> 
+              <p>
+                Store the action cards you draw, one by one:
+                <select id="store_card" name="store_card">
+                  <option selected="selected",style="width:150px"></option>
+                  {% for type,card,info in action_cards %}
+                    <option value={{card}}>{{card}}</option>
+                  {% endfor%}
+                </select>
+                <button  id="store_card" style="text-align: center">submit</button>
+                <p>
+            </form>
+          </div>
+          
+          <!--Please fill in your commitment card-->
+          <div class="gap-30"></div>
+          <h3>Fill in Commitment Cards</h3>
+          <div class="container">
+            <form action="/commitment_card/" method="post"> 
+              <br>
+                <p>Player ID:<input name="PlayerID" type="number" placeholder="Player ID" /><br>
+                My challenge this week is to: <br>
+                <textarea rows = "3" cols = "80" name ="challenge"></textarea><br>
+                If I do this I will earn <input name="base_miles" type="number" /> miles for the team. <br>
+                In addition, I agree to collaborate with player<input name="collaboratorID" type="number" placeholder="collaborator ID" /><br>
+                and  I will  <br>
+                <textarea rows = "3" cols = "80" name ="collaboration_challenge"></textarea><br>
+                I will document the completion of my challenge by <br>
+                <textarea rows = "3" cols = "80" name ="Way2DocumentChallenge"></textarea><br>
+                Bonus miles if I collaborate with a teammate:<input name="bonusMiles" type="number" placeholder="bonus miles" /> miles<br>
+                Total miles if I honor my commitment and collaborate 
+                <input name="totalMiles" type="number" placeholder="total miles" /><br>
+                Date of filling the commmitment card
+                <input name="FillDate" type="date" /><br>
+                Expected date of completing the commmitment card
+                <input name="CompletionDate" type="date" /><br>
+              <button  id="commitment_card">submit</button>
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!--the left panel is the summary-->
+      <div class="col-lg-3 ">
+        <div class="affix" data-offset-top="1">
+          <font size=3> 
+          <table class="table-striped " style="font-size: 4 em;">
+            <tr>
+              <th bgcolor="black"><font color="white">Team</font></th>
+              <td bgcolor="black"> <font color="white">{{team_info.team_name}}</font></td>
+            </tr>
+            <tr>
+              <th >Week #</th>
+              <td>{{team_info.the_ith_week}}</td>
+            </tr>
+            <tr>
+                <th >Current location</th>
+                <td>{{team_info.location}}</td>
+            </tr>
+            <tr>   
+                <th >Destination</th>
+                <td>{{team_info.destination}}</td>
+            </tr>
+            <tr> 
+                <th >Driver</th>
+                <td>{{team_info.driver}}</td>
+            </tr>
+            <tr> 
+                <th >Goal miles</th>
+                <td>{{team_info.goal_miles}}</td>
+            </tr>
+            <tr> 
+                <th >Player average miles</th>
+                <td>{{team_info.player_miles}}</td>
+            </tr>
+            <tr> 
+                <th >Accumulative Miles</th>
+                <td>{{team_info.actual_miles}}</td>
+            </tr>
+            <tr> 
+                <th >Actions cards received</th>
+                <td>{% for card in team_info.cards_received %}{{card}}; {% endfor%}</td>
+            </tr>
+            <tr> 
+                <th >Actions cards at hand</th>
+                <td>{% for card in team_info.cards_at_hand %}{{card}}; {% endfor%}</td>
+            </tr>
+            <tr> 
+                <th >Actions cards used</th>
+                <td>{% for card in team_info.cards_used %}{{card}}; {% endfor%}</td>
+            </tr>
+            <tr> 
+                <th>Points</th>
+                <td>{{team_info.points}}</td>
+            </tr>  
+          </table>
+          </font>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
-</div>
-
-<div class="gap-30"></div>
-
-
-<div class="gap-30"></div>
-<!-- Plan for next week-->
-<div class="text-center">
-  <h2>Please deside the plan for the following week</h2>
-  <label>You received Bad Direction card, choose how you will react: </label>
-</div>
-
-<div style="position: relative;left: 30%">
-  
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class=flashes>
-        {% for category,message in messages %}
-        {% if category == "error" %}
-          <p style="color:red">{{message}}</p>
-        {% endif %}
-        {% if category == "success" %}
-        <p style="color:blue">{{message}}</p>
-      {% endif %}
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-  <form action="/assign_plan_next_week/" method="post"> 
-    <br>
-      <label>Target Week #: </label>
-      <input name="WeekNum" type="number" placeholder="_th Week" /><br>
-      <label>Assign driver: </label>
-      <input name="DriverID" type="number" placeholder="Player ID" /><br>
-      <label>Assign destination city: </label>
-      <input name="CityID" type="number" placeholder="City ID" /><br>
-      <label>Offensive/Defensive cards you drew: </label>
-      <input name="CardName1" type="number" placeholder="card #" />
-      <input name="CardName2" type="number" placeholder="card #" />
-      <input name="CardName3" type="number" placeholder="card #" /><br>
-      <label>Defensive cards you use: </label>
-      <input name="RECardName1" type="number" placeholder="card #" />
-      <input name="RECardName2" type="number" placeholder="card #" />
-      <input name="RECardName3" type="number" placeholder="card #" /><br>
-      <label>Offensive cards you use: </label><br>
-      <input name="USCardName1" type="number" placeholder="card #" />
-      <input name="USTeamName1" type="number" placeholder="team #" /><br>
-      <input name="USCardName2" type="number" placeholder="card #" />
-      <input name="USTeamName2" type="number" placeholder="team #" /><br>
-      <input name="USCardName3" type="number" placeholder="card #" />
-      <input name="USTeamName3" type="number" placeholder="team #" /><br>
-    <br>
-    <button  id="assign_plan">submit</button>
-  </form>
-</div>
-
-<div class="gap-30"></div>
-
-<div style="position: relative;left: 30%">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class=flashes>
-        {% for category,message in messages %}
-        {% if category == "challenge_error" %}
-          <p style="color:red">{{message}}</p>
-        {% endif %}
-        {% if category == "challenge_success" %}
-        <p style="color:blue">{{message}}</p>
-      {% endif %}
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-  <form action="/assign_challenge_to_commitment/" method="post"> 
-    <br>
-      <label>Please enter the challenge card ID to form a commitment pledge: </label>
-      <input name="CardID" type="number" style="width: 50px;" placeholder="card ID" />
-    <button  id="assign_attendence" style="text-align: center">submit</button>
-  </form>
-<div class="gap-30"></div>
-
 {%endif%}
 {%endblock content%}

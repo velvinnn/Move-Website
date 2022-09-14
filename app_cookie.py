@@ -34,6 +34,11 @@ def team_webpage(cards_drawn=[],team_id=None,interested='False',interested_city=
         marker_pos={'x':0,'y':0}
     if len(cards_drawn)==0:
         cards_drawn = request.cookies.get('cards_drawn')
+    if cards_drawn:
+        cards_drawn=cards_drawn.split(",")
+    else:
+        cards_drawn=[]
+    cards_drawn=[s for s in cards_drawn if len(s)>1]
     if not team_id:
         team_id=request.cookies.get('team_id')
     #plot_map([team_id])
@@ -45,7 +50,9 @@ def team_webpage(cards_drawn=[],team_id=None,interested='False',interested_city=
     city_names=read_cities_dic()[["Name","ID"]].values.tolist()#html_city_dic()
     #get commitment pledge
     player_leaderboard=get_players_progress(team_id=team_id)
-    resp = make_response(render_template('teams.html',team_info=team_info,player_images=get_cards_list(cards_drawn),login=login,player_leaderboard=player_leaderboard,city_names=city_names,parcitipant_data=parcitipant_data))
+    #get all cards to draw
+    action_cards=read_action_cards()
+    resp = make_response(render_template('teams.html',team_info=team_info,player_images=cards_drawn,login=login,player_leaderboard=player_leaderboard,city_names=city_names,parcitipant_data=parcitipant_data,action_cards=action_cards))
     resp.set_cookie('team_id',team_id)
     return resp
 
@@ -54,21 +61,17 @@ def team_webpage(cards_drawn=[],team_id=None,interested='False',interested_city=
 #go to the main page
 @app.route('/main')
 def main():
-    plot_map()
-    for t_id in get_all_team_ids():
-        week_num=get_team_week_num(t_id)
-        update_team_at_week(t_id,week_num)
-        plot_map([t_id])
     team_leader_board=generate_team_leader_board()
+    plot_all_map()
+    for team_id in get_all_team_ids():
+        plot_map([team_id])
     if 'login' in request.cookies:
         login=request.cookies.get('login')
     else:
         login='False'
-    if login == 'True':
-        player_leaderboard=get_players_progress()
-    else:
-        player_leaderboard=[]
-    resp = make_response(render_template('main.html',login=login,team_leader_board=team_leader_board,player_leaderboard=player_leaderboard))
+    #plot_map()
+    resp = make_response(render_template('main.html',login=login,team_leader_board=team_leader_board))
+
 
     resp.set_cookie('login',login)
     resp.set_cookie('id','all')
@@ -109,9 +112,9 @@ def teams(team_id=[]):
 @app.route("/Drawcards/", methods=['GET', 'POST'])
 def get_img2():
     cards_drawn = request.cookies.get('cards_drawn')
-    new_cards='cards_image/'+draw_cards()
+    new_cards=draw_cards()
     while new_cards in cards_drawn:
-            new_cards='cards_image/'+draw_cards()
+            new_cards=draw_cards()
     cards_drawn+=","+new_cards
 
     resp=team_webpage(cards_drawn)
@@ -119,111 +122,54 @@ def get_img2():
     return resp
     #return  redirect(url_for('teams',player_images=result,player_image="cards_image/empty.jpg",rows=["1","2","3"]))
 
-
 @app.route("/assign_plan_next_week/", methods=['GET', 'POST'])
 def assign_plan():
-    WeekNum=request.form['WeekNum']
-    if len(WeekNum)==0:
-        flash("Please enter a week number!","error")
-    else:
-        WeekNum=int(WeekNum)
+    try:
         team_id=request.cookies.get('team_id')
         week_num=get_team_week_num(team_id)
-        #input week num
-        if WeekNum>week_num:
-            flash("Your target week is Week "+str(WeekNum),"success")
-            #change driver:
-            DriverId = request.form['DriverID']
-            
-            if len(DriverId)>0:
-                if DriverId in get_all_player_ids_in_team(team_id):
-                    modify_team_progress(team_id,WeekNum,"driver id",DriverId)
-                    update_player_cards(DriverId,"1",WeekNum)
-                    user=get_user_info(DriverId)
-                    flash("Driver ID # "+DriverId+"("+user["first_name"]+" "+user["last_name"]+") has been assigned as the Driver","success")
-                else:
-                    flash("Driver ID "+DriverId+" is not in your team!","error")
-            
-            #assign destination city
-            CityID = request.form['CityID']
-            if len(CityID)>0:
-                states,cities,lat,long,cids,points=read_cities_dic()
-                if CityID in cids:
-                    c_index=cids.index(CityID)
-                    modify_team_progress(team_id,WeekNum,"target location id",CityID)
-                    flash("City ID # "+CityID+"("+cities[c_index]+", "+states[c_index]+") has been assigned as the destination.","success")
-                else:
-                    flash("City ID "+CityID+" does not exist!","error")
-        
-            # assign card to player
-            for i in range(1,10):
-                CardID=request.form['CardName'+str(i)]
-                PlayerID=request.form['PlayerName'+str(i)]
-                if len(CardID)>0 and len(PlayerID)>0:
-                    if not (CardID in get_all_cards_ids()):
-                        flash("CardID "+str(CardID)+" does not exist!","error")
-                    elif not (PlayerID in get_all_player_ids_in_team(team_id)):
-                        flash("PlayerID "+str(PlayerID)+" is not in the team!","error")
-                    else:
-                        update_player_cards(PlayerID,CardID,WeekNum)
-                        user=get_user_info(PlayerID)
-                        flash("Card # "+str(CardID)+" successfully assigned to Player # "+str(PlayerID)+"("+user["first_name"]+" "+user["last_name"]+")!","success")
-        else:
-            flash("You input Week "+str(WeekNum)+" is less than the current week ( Week "+str(week_num)+")","error")
+        DriverId = str(request.form['DriverID'])
+        if DriverId:
+            user=get_user_info(DriverId)
+            if DriverId in get_all_player_ids_in_team(team_id):
+                modify_team_progress(team_id,week_num,"driver id",DriverId)
+                flash("Driver ID # "+DriverId+"("+user["first_name"]+" "+user["last_name"]+") has been assigned as the Driver","driver_success")
+            else:
+                flash("Assignment failure! This driver is not in your team!","driver_error")
+    except:
+        flash("Assignment failure! Please check your input","driver_error")
     return team_webpage()
 
-@app.route("/assign_commitment_pledge_next_week/", methods=['GET', 'POST'])
-def assign_cp():
-    WeekNum=request.form['WeekNum']
-    if len(WeekNum)==0:
-        flash("Please enter a week number!","pc_error")
-    else:
-        WeekNum=int(WeekNum)
+
+
+@app.route("/decide_destination_city/", methods=['GET', 'POST'])
+def decide_destination_city():
+    try:
         team_id=request.cookies.get('team_id')
         week_num=get_team_week_num(team_id)
-        #input week num
-        if WeekNum>week_num:
-            flash("Your target week is Week "+str(WeekNum),"pc_success")
-            #change driver:
-            PlayerId = request.form['PlayerID']
-            
-            if not (PlayerId  in get_all_player_ids_in_team(team_id)):
-                flash("PlayerID "+str(PlayerId )+" is not in the team!","pc_error")
-            else:
-
-                if request.form.get('Driver bonus'):
-                    update_player_cards(str(PlayerId),"1",WeekNum)
-                if request.form.get("Try something new bonus"):
-                    update_player_cards(str(PlayerId),"2",WeekNum)
-                    with open("player/report/player#"+str(PlayerId)+"_week"+str(WeekNum)+".txt","a") as f:
-                        f.write("Try something new bonus: "+request.form.get('Something new string')+"\n")
-                if request.form.get("Double-up bonus"):
-                    update_player_cards(str(PlayerId),"3",WeekNum)
-                    if len(request.form.get('DoublePlayerID1')) >0 or len(request.form.get('DoublePlayerID2')) >0:
-                        with open("player/report/player#"+str(PlayerId)+"_week"+str(WeekNum)+".txt","a") as f:
-                            if len(request.form.get('DoublePlayerID1')) >0:
-                                f.write("Double-up bonus Player: "+request.form.get('DoublePlayerID1')+"\n")
-                            if len(request.form.get('DoublePlayerID2')) >0:
-                                f.write("Double-up bonus Player: "+request.form.get('DoublePlayerID2')+"\n")
-                flash("Commitment pledge created for Player #"+str(PlayerId)+"! Remember that you also need to assign the challenge card to the player.","pc_success")
-                
-            '''
-            if not(request.form.get("Driver bonus")is None):
-                 flash("Driver bonus assigned","pc_success")   
-            '''
-        else:
-            flash("Your have completed week #"+str(week_num)+", you cannot input week prior to that","pc_error")
+        target_loc=str(request.form["destination"])
+        if target_loc:
+            modify_team_progress(team_id,week_num,"target location id",target_loc)
+            flash("New destination has been assigned","driver_success")
+        goal_miles=str(request.form["goal_miles"])
+        bonus_miles=str(request.form["bonus_miles"])
+        if goal_miles:
+            if bonus_miles:
+                goal_miles=int(goal_miles)+int(bonus_miles)
+            modify_team_progress(team_id,week_num,"goal_miles",str(goal_miles))
+            flash("Goal miles has been assigned","driver_success")    
+    except:
+        flash("Assignment_failure! Please check your input","driver_error")
     return team_webpage()
 
 @app.route("/find_city_distance/", methods=['GET', 'POST'])
 def print_city_distance():
     start_city=request.form["DropDownCity1"]
     end_city=request.form["DropDownCity2"]
+    target_city=str(end_city)
     if len(start_city)>0 and  len(end_city)>0:
         if end_city<start_city:
             start_city,end_city=end_city,start_city
-        
-        message,category=find_customized_city_distance_between(start_city,end_city)
+        message,category=find_customized_city_distance_between(start_city,end_city,target_city)
         flash(message,category)
     return team_webpage()
 
@@ -347,56 +293,81 @@ def attack_with_cards():
         flash("Fail to use the "+card_to_use+" card to team "+target_team+". Check if this team exists or if you have this card.","offensive_card_error")    
     return team_webpage()
 
-@app.route("/assign_challenge_to_commitment/", methods=['GET', 'POST'])
-def assigne_challenge():
-    card_id=request.form['CardID']
-    card_info=read_card_info(card_id)
-    success=False
-    if "card type" in card_info.keys():
-        if card_info["card type"] =='Chanllenge':
-            success=True
-            
-            flash("A commitment Pledge has been created from card #"+card_id,"challenge_success")
-            return team_webpage(card_challenge_id=card_id)
-    if not success:
-        flash("Card #"+card_id+" is not a challenge card! Please assign a new one!","challenge_error")
-    
+@app.route("/assign_actual_miles/", methods=['GET', 'POST'])
+def assign_actual_miles():
+    try:
+        team_id=request.cookies.get('team_id')
+        week_num=get_team_week_num(team_id)
+        team_info=read_team_progress_at(team_id,week_num)
+        actual_miles=int(request.form['actual_miles'])+int(team_info["player_miles"])
+        modify_team_progress(team_id,week_num,"actual_miles",str(actual_miles))
+        flash("Successfully assign "+str(actual_miles)+" miles!","actual_miles")
+    except:
+        flash("Error, check your team csv file!","actual_miles_error")
     return team_webpage()
 
-@app.route("/send_email/", methods=['GET', 'POST'])
-def send_email():
-    email=request.form['email']
-    message=request.form['message']
-    if len(message)>0 and len(email)>0:
+@app.route("/assign_points/", methods=['GET', 'POST'])
+def assign_points():
+    try:
+        team_id=request.cookies.get('team_id')
+        week_num=get_team_week_num(team_id)
+        team_info=read_team_progress_at(team_id,week_num)
+        points=int(request.form['points'])+int(team_info["points"])
+        modify_team_progress(team_id,week_num,"points",str(points))
+        flash("Successfully assign "+str(points)+" points","points")
+    except:
+        flash("Error, check your team csv file!","points_error")
+    return team_webpage()
+#start_new_week
+@app.route("/start_new_week/", methods=['GET', 'POST'])
+def start_new_week():
+    try:
+        team_id=request.cookies.get('team_id')
+        week_num=get_team_week_num(team_id)
+        new_week=str(int(week_num)+1)
+        loction_id=str(request.form['start_new_week'])
+        if loction_id:
+            add_new_week_to_file(team_id,new_week,loction_id)
+            plot_map([team_id])
+            flash("Successfully start the new week. You are now at week "+new_week,"new_week")
+        else:
+            flash("Error, you cannot start the new week without a start location!","new_week_error")
+    except:
+        flash("Error, you cannot start the new week now!","new_week_error")
+    return team_webpage()
+
+@app.route("/store_card/", methods=['GET', 'POST'])
+def store_card():
+    card_name=request.form['store_card']
+    if card_name:
         try:
-            '''
-            email_message = MIMEMultipart()
-            body_part = MIMEText(message, 'plain')
-            email_message.attach(body_part)
-            #email_message.add_attachment(open(filename, "r").read(), filename=filename)
-            email_message["Subject"] = "Message from Gamification website"
-            email_message["From"] = outlook_sender_email
-            email_message["To"] = email
-            port = 587  # For SSL
-            with smtplib.SMTP('smtp-mail.outlook.com', port) as server:
-                server.starttls()
-                server.login(outlook_sender_email, password)
-                server.sendmail(outlook_sender_email, email,email_message.as_string()) #.as_string())
-                flash("message sent","email_success")
-            '''
-            port = 465  # For SSL
-            context = ssl.create_default_context()
-            with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
-                server.login(gmail_sender_email, password)
-                server.sendmail(gmail_sender_email, email,"From Gamification website: "+message)
-                flash("message sent","email_success")
+            team_id=request.cookies.get('team_id')
+            week_num=get_team_week_num(team_id)
+            team_info=read_team_progress_at(team_id,week_num)
+            team_info["cards_at_hand"]=team_info["cards_at_hand"]+[card_name]
+            modified_value=""
+            for val in team_info["cards_at_hand"]:
+                    if val:
+                        modified_value+=val+";"
+            modify_team_progress(team_id,week_num,"cards_at_hand",modified_value)
+            flash("Successfully add the "+card_name+" card","add_card")   
         except:
-            flash("message failure. Check email address","email_error")
-    else:
-        flash("Please enter complete information","email_error")
+            flash("Failt to add the "+card_name+" card","add_card_error") 
     return team_webpage()
 
 
+@app.route("/commitment_card/", methods=['GET', 'POST'])
+def commitment_card():
+    res={}
+    f = request.form
+    for key in f.keys():
+        res[key]=str(request.form[key])
+    if 'PlayerID' in res:
+        team_id=request.cookies.get('team_id')
+        week_num=str(get_team_week_num(team_id))
+        plot_commitment_card(res,week_num)
+    return team_webpage()
+#
 #login and redirect to the main page
 @app.route('/login', methods=['GET', 'POST'])
 def login():

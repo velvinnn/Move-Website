@@ -419,7 +419,3 @@ def get_gmail_users():
 #print(y)
 #z=count_0_date(user,end_date=None)
 #print(z)
-'''
-user=get_user_info("1")
-print(get_bmi_period(user,"2022-08-10","2022-08-20"))
-'''
