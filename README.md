@@ -7,6 +7,7 @@
     <li><a href="#prerequisites">Prerequisites</a></li>
     <li><a href="#playing-the-game">Playing the game</a></li>
     <li><a href="#managing-cards">Managing cards</a></li>
+    <li><a href="#managing-cities">Managing cities</a></li>
     <li><a href="#modifying-or-reading-information-in-the-past-week">Modifying or reading information in the past week</a></li>
     <li><a href="#adding-a-new-participant">Adding a new participant</a></li>
     <li><a href="#Adding-a-new-team">Adding a new team</a></li>
