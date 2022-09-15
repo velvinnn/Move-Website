@@ -28,7 +28,7 @@ Please install the following packages before using this website.
 * json
 
 
-Please put the `user info.csv` file under the folder `player`.
+Replace `player/user info.csv` file with the complete version.
 
 
 
