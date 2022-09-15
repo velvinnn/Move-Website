@@ -8,7 +8,7 @@
     <li><a href="#playing-the-game">Playing the game</a></li>
     <li><a href="#adding-a-new-participant">Adding a new participant</a></li>
     <li><a href="#Adding-a-new-team">Adding a new team</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="#managing-cards">Managing cards</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
@@ -50,5 +50,10 @@ Add a new row for the participant in the file `player/user info.csv`. The requir
 ### Managing cards
 #### Managing cards drawn
 The cards are drawn randomly from the folder `team/card_image`. The cards are drawn by a fixed order. Adding new cards, removing cards, or renaming cards will change this order.
+
 To add a new card, please make sure that it is in the `.png` format, and placed under the same folder `team/card_image`.
+
+#### Managing the action cards in the drop-down selection box
+Add/remove/modify a row in the `static/cards.csv` file.
+
 
