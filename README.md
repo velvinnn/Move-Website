@@ -45,7 +45,7 @@ Please put the `user info.csv` file under the folder `player`.
 #### Managing cards drawn
 The cards are drawn randomly from the folder `team/card_image`. The cards are drawn by a fixed order. Adding new cards, removing cards, or renaming cards will change this order.
 
-To add a new card, please make sure that it is in the `.png` format, and placed under the same folder `team/card_image`.
+To add a new card, please make sure that it is in the `.png` format, and placed under the same folder `team/card_image`. The template `static/cards_image_template.pptx` can be used. Every card can be one slide, and exported by saving the powerpoint as image page by page.
 
 
 
