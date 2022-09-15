@@ -52,6 +52,15 @@ To add a new card, please make sure that it is in the `.png` format, and placed 
 #### Managing the action cards in the drop-down selection box
 Add/remove/modify a row in the `static/cards.csv` file.
 
+### Managing cities
+Change the bonus points/cards, which can be picked up at a city, in the `map/city_dic.csv` file - `bonus` field. If there is no bonus, please input `nothing`.
+
+
+Change the distance between cities in the `map/city_dis.csv` file 
+* dis1 refers to the shorter distance
+* dis2 refers to the longer distance
+* to add a direct route in the map, please add a new row. Please make sure that `city_id1<city_id2`, and both city ids are recorded in the `map/city_dic.csv` file.
+
 
 
 ### Modifying and reading information in past weeks
