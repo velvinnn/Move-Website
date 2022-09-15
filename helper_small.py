@@ -77,12 +77,6 @@ def get_user_info(user_id="1"):
                     user_info[variables[i]]=words[i]
     if len(user_info.keys())==0:
         print("Error! the userid "+user_id+" does not contain information in the database!")
-    for key in manually_input_dates:
-        if len(user_info[key])==0:
-            user_info[key]="2050-01-01"
-    if len(user_info['report_day'])==0:
-        user_info['report_day']=days_of_week[get_date_time(user_info['study_start_dt']).weekday()]
-    #print(user_info)
     return user_info
 
 def get_step_period(user,previous_days=31,end_date=None,start_date=None):

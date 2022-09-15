@@ -22,4 +22,3 @@ def draw_cards():
     return f
     #return "cards_image/"+filename#card_directory(draw_id)
 
-

@@ -1,9 +1,5 @@
-from ast import mod
-from calendar import week
-from unicodedata import name
 import numpy as np
 import pandas as pd
-import math
 from cards import *
 from helper_small import *
 

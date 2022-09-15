@@ -17,7 +17,7 @@
           <h2>Team: {{team_info.team_name}}</h1>
           <h3>Welcome to the Week #{{team_info.the_ith_week}}! </h3>
           <p> You can find the cities you have traveled in this map. </p>
-          <img class="map_image" src="{{ url_for('static', filename='teams_')}}{{ team_info.team_id }}{{map_id}}{{ '.png' }}" style="width:60%" alt="Image" id='TeamMap'>
+          <img class="map_image" src="{{ url_for('static', filename='teams_')}}{{ team_info.team_id }}{{map_id}}{{ '.png' }}" style="width:100%" alt="Image" id='TeamMap'>
         </div>
         <div class="gap-30"></div>
         <!--Step 1 -->
