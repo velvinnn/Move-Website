@@ -28,7 +28,7 @@ Please install the following packages before using this website.
 * json
 
 
-Replace `player/user info.csv` file with the complete version.
+Replace `player/user info.csv` file with the version including Fitbit tokens.
 
 
 
