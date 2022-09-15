@@ -1,13 +1,6 @@
-import re
-import os
-import stat
-from typing import MappingView
 from flask import Flask,render_template,request,redirect, url_for,session,make_response,jsonify,flash
-import random
-import smtplib, ssl
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from flask_util_js import FlaskUtilJs
+
 from map import *
 from teams import *
 from helper_small import *
@@ -112,10 +105,10 @@ def teams(team_id=[]):
 @app.route("/Drawcards/", methods=['GET', 'POST'])
 def get_img2():
     cards_drawn = request.cookies.get('cards_drawn')
+    num_cards_drawn=cards_drawn.count('.png')
     new_cards=draw_cards()
-    while new_cards in cards_drawn:
-            new_cards=draw_cards()
-    cards_drawn+=","+new_cards
+    if num_cards_drawn<len(new_cards):
+        cards_drawn+=","+new_cards[num_cards_drawn]
 
     resp=team_webpage(cards_drawn)
     resp.set_cookie('cards_drawn',cards_drawn)

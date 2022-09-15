@@ -1,9 +1,5 @@
 import requests
-import json
-from datetime import datetime
-from datetime import timedelta
-import random
-import os
+from datetime import datetime,timedelta
 #Querying the user information
 days_of_week=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
 month=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]

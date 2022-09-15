@@ -1,5 +1,3 @@
-from calendar import week
-from genericpath import isfile
 import numpy as np
 from cards import *
 from helper_small import *
